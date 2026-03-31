@@ -1,0 +1,135 @@
+Interview Scheduling System (ISS) 
+The Interview Scheduling System (ISS) is designed to streamline the scheduling and management of interviews between external candidates, HR personnel, and the technical panel. The system ensures efficient interview scheduling, tracking, and reporting while allowing HR and technical panels to manage workflows effectively. 
+ 
+Scope 
+	•	Secure authentication and authorization using Spring Security and OAuth2.0 PKCE Authorization Code Flow  
+	•	CRUD operations for HR, Technical Panel, and External Candidates with database persistence using Hibernate and PostgreSQL/MySQL  
+	•	Monolithic Spring Boot application architecture  
+	•	Integration with Apache Kafka for real-time updates (optional, supported in local setup)  
+ 
+1.1 Technical Requirements 
+1. Authentication & Authorization 
+	•	Implement OAuth2.0 and JWT for secure authentication  
+	•	Apply Role-Based Access Control (RBAC) for:  
+	•	HR  
+	•	Technical Panel  
+	•	External Candidates  
+ 
+2. Application Architecture (Monolithic) 
+Develop a single Spring Boot application with modular layered architecture: 
+Modules 
+Authentication Module 
+	•	Handles login, token generation, and RBAC  
+Candidate Management Module 
+	•	Handles candidate CRUD operations  
+Interview Scheduling Module 
+	•	Manages interview slots and scheduling  
+Notification Module (Optional) 
+	•	Handles email notifications and Kafka event publishing  
+ 
+3. Object-Oriented Design Patterns 
+Singleton Pattern 
+	•	For configuration management and shared resources  
+Observer Pattern 
+	•	For real-time updates (e.g., notifying HR/panel on schedule changes)  
+Builder Pattern 
+	•	For constructing complex candidate profiles  
+ 
+4. Database 
+	•	Use MySQL / PostgreSQL (Local Setup)  
+	•	Use Hibernate (JPA) for ORM  
+Tables: 
+	•	Users (HR, Panel)  
+	•	Candidates  
+	•	Interviews  
+ 
+5. Event-Driven Communication (Optional) 
+Use Apache Kafka (Local Installation) for: 
+	•	Real-time interview scheduling updates  
+	•	Asynchronous processing (e.g., sending notifications)  
+(If Kafka is not used, fallback to synchronous service calls or Spring Events) 
+ 
+6. Secure API Endpoints 
+	•	JWT-based authentication  
+	•	Role-based access:  
+	•	HR → Full access  
+	•	Technical Panel → Limited access  
+	•	Candidates → Read-only access  
+ 
+7. Local Deployment 
+	•	Run application on local machine  
+	•	Use:  
+	•	Embedded Tomcat (Spring Boot)  
+	•	Local database instance (MySQL/PostgreSQL)  
+	•	No cloud dependencies required  
+ 
+8. Logging 
+	•	Use:  
+	•	Log4j / SLF4J  
+Log: 
+	•	User activity  
+	•	Errors  
+	•	API requests  
+ 
+1.2 Business Requirements 
+1. User Authentication & Authorization 
+	•	Secure login/logout using Spring Security & OAuth2.0  
+	•	Role-Based Access Control:  
+	•	HR  
+	•	Technical Panel  
+	•	External Candidates (Read-only)  
+ 
+2. Candidate Management 
+Candidate Attributes: 
+	•	Name  
+	•	ID  
+	•	CV (File Reference/Storage)  
+	•	Primary Skill (Java / .NET / React / Angular / Full Stack)  
+	•	Skill Details (Comma-separated list)  
+	•	Status:  
+	•	Screened  
+	•	Scheduled  
+	•	In R1 / R2 / R3  
+	•	Selected  
+	•	Rejected  
+	•	Years of Experience (YOE)  
+	•	Last Working Day (LWD)  
+	•	Notice Period (NP)  
+	•	isActive (Boolean)  
+ 
+3. Interview Scheduling 
+Interview Attributes: 
+	•	ID  
+	•	Date  
+	•	Time Slot  
+	•	Panel Name  
+	•	Candidate Name  
+	•	HR Name  
+	•	Round (R1, R2, R3)  
+	•	Status:  
+	•	Selected  
+	•	Rejected  
+	•	On Hold  
+ 
+Good to Have 
+	•	Email notifications for:  
+	•	Interview scheduling  
+	•	Status updates  
+ 
+5. Secure API Endpoints 
+	•	JWT-based authentication  
+	•	Role-based authorization for API access  
+ 
+6. Local Scalability (Optional Enhancements) 
+	•	Optimize performance using:  
+	•	Connection pooling  
+	•	Caching (Spring Cache)  
+ 
+7. Event-Driven Updates (Optional) 
+	•	Kafka / Spring Events for:  
+	•	Real-time updates  
+	•	Notifications on:  
+	•	Interview scheduling  
+	•	Candidate status changes  
+ 
+
