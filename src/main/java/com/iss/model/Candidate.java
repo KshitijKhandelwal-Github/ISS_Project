@@ -4,6 +4,8 @@ import com.iss.model.enums.CandidateStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "candidates")
 @Data
@@ -30,7 +32,7 @@ public class Candidate {
 
     private Integer yearsOfExperience;
 
-    private String lastWorkingDay;
+    private LocalDate lastWorkingDay;
 
     private Integer noticePeriod;
 
