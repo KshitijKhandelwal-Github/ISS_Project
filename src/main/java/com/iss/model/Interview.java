@@ -33,7 +33,7 @@ public class Interview {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hr_id")
-    private HrProfile hr;
+    private Users hr;
 
     private String candidateName;
     private String panelName;
