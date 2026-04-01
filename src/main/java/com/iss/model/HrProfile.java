@@ -1,20 +1,17 @@
 package com.iss.model;
-import com.iss.auth.UserAccount;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import com.iss.model.enums.RoleType;
+import com.iss.model.enums.UserStatus;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.List;
 
 
 @Setter
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "hr_profiles")
 public class HrProfile {
@@ -36,5 +33,7 @@ public class HrProfile {
     @Column(nullable = false)
     private Boolean active = true;
 
+    @OneToMany(mappedBy = "hr", fetch = FetchType.LAZY)
+    private List<Interview> interviews;
 }
 

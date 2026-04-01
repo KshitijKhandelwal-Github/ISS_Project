@@ -1,20 +1,15 @@
 package com.iss.model;
 
-import com.iss.auth.UserAccount;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.List;
 
 @Setter
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "technical_panel_profiles")
 public class TechnicalPanelProfile {
@@ -36,4 +31,6 @@ public class TechnicalPanelProfile {
     @Column(nullable = false)
     private Boolean active = true;
 
+    @OneToMany(mappedBy = "panel", fetch = FetchType.LAZY)
+    private List<Interview> interviews;
 }

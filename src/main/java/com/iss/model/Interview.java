@@ -8,12 +8,12 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Entity
-@Table(name = "interviews")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
+@Table(name = "interviews")
 public class Interview {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,10 +23,20 @@ public class Interview {
 
     private LocalTime timeSlot;
 
-    private String panelName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "candidate_id")
+    private Candidate candidate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "panel_id")
+    private TechnicalPanelProfile panel;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hr_id")
+    private HrProfile hr;
 
     private String candidateName;
-
+    private String panelName;
     private String hrName;
 
     @Enumerated(EnumType.STRING)
@@ -34,4 +44,5 @@ public class Interview {
 
     @Enumerated(EnumType.STRING)
     private InterviewStatus status;
+
 }

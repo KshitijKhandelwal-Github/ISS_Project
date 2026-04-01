@@ -5,19 +5,20 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
-@Entity
-@Table(name = "candidates")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
+@Table(name = "candidates")
 public class Candidate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false) 
     private String name;
 
     private String cvReference;
@@ -37,4 +38,7 @@ public class Candidate {
     private Integer noticePeriod;
 
     private Boolean isActive;
+
+    @OneToMany(mappedBy = "candidate", fetch = FetchType.LAZY)
+    private List<Interview> interviews;
 }
