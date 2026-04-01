@@ -1,7 +1,8 @@
 package com.iss.controller;
 
-import com.iss.model.Candidate;
-import com.iss.repository.CandidateRepository;
+import com.iss.dto.candidate.CandidateRequest;
+import com.iss.dto.candidate.CandidateResponse;
+import com.iss.service.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,43 +14,39 @@ import java.util.List;
 public class CandidateController {
 
     @Autowired
-    private CandidateRepository candidateRepository;
+    private CandidateService candidateService;
 
     @GetMapping
-    public List<Candidate> getAllCandidates() {
-        return candidateRepository.findAll();
+    public List<CandidateResponse> getAllCandidates() {
+        return candidateService.getAllCandidates();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Candidate> getCandidateById(@PathVariable Long id) {
-        return candidateRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<CandidateResponse> getCandidateById(@PathVariable Long id) {
+        CandidateResponse response = candidateService.getCandidateById(id);
+        if (response != null) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public Candidate createCandidate(@RequestBody Candidate candidate) {
-        return candidateRepository.save(candidate);
+    public ResponseEntity<CandidateResponse> createCandidate(@RequestBody CandidateRequest request) {
+        return ResponseEntity.ok(candidateService.createCandidate(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Candidate> updateCandidate(@PathVariable Long id, @RequestBody Candidate candidateDetails) {
-        return candidateRepository.findById(id)
-                .map(candidate -> {
-                    candidate.setName(candidateDetails.getName());
-                    candidate.setPrimarySkill(candidateDetails.getPrimarySkill());
-                    candidate.setStatus(candidateDetails.getStatus());
-                    candidate.setYearsOfExperience(candidateDetails.getYearsOfExperience());
-                    candidate.setLastWorkingDay(candidateDetails.getLastWorkingDay());
-                    candidate.setSkillDetails(candidateDetails.getSkillDetails());
-                    return ResponseEntity.ok(candidateRepository.save(candidate));
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<CandidateResponse> updateCandidate(@PathVariable Long id, @RequestBody CandidateRequest request) {
+        CandidateResponse response = candidateService.updateCandidate(id, request);
+        if (response != null) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCandidate(@PathVariable Long id) {
-        candidateRepository.deleteById(id);
+        candidateService.deleteCandidate(id);
         return ResponseEntity.noContent().build();
     }
 }
