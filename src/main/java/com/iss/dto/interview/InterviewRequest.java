@@ -1,4 +1,4 @@
-package com.iss.dto;
+package com.iss.dto.interview;
 
 import com.iss.model.enums.InterviewRound;
 import com.iss.model.enums.InterviewStatus;
