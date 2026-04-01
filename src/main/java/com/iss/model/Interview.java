@@ -29,7 +29,7 @@ public class Interview {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "panel_id")
-    private TechnicalPanelProfile panel;
+    private Users panel;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hr_id")

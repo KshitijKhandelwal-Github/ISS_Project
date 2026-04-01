@@ -18,9 +18,9 @@ public class Candidate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private UserAccount userAccount;
+    private Accounts accounts;
 
     @Column(nullable = false) 
     private String name;
