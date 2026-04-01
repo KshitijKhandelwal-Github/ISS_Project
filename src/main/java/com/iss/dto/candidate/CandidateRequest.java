@@ -11,7 +11,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CandidateRequest {
-    private Long accountId; // Optional: Only if linked to a login account
     private String name;
     private String cvReference;
     private String primarySkill;
