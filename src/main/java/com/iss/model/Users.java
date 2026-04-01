@@ -4,6 +4,7 @@ import com.iss.model.enums.RoleType;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Data
 @Setter
 @Getter
 @Entity
@@ -30,4 +31,11 @@ public class Users {
 
     @Column(nullable = false)
     private Boolean active = true;
+
+    public void setRole(RoleType role) {
+        if (this.role == RoleType.ROLE_CANDIDATE) {
+            throw new IllegalArgumentException("This type of user cannot have ROLE_CANDIDATE role");
+        }
+        this.role = role;
+    }
 }

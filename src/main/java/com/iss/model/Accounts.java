@@ -5,6 +5,7 @@ import com.iss.model.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Data
 @Setter
 @Getter
 @NoArgsConstructor
