@@ -1,14 +1,13 @@
 package com.iss.service;
 
-import com.iss.dto.candidate.CandidateRequest;
-import com.iss.dto.candidate.CandidateResponse;
+import com.iss.dto.candidate.CandidateDto;
 
 import java.util.List;
 
 public interface CandidateService {
-    List<CandidateResponse> getAllCandidates();
-    CandidateResponse getCandidateById(Long id);
-    CandidateResponse createCandidate(CandidateRequest request);
-    CandidateResponse updateCandidate(Long id, CandidateRequest request);
+    List<CandidateDto.CandidateResponse> getAllCandidates();
+    CandidateDto.CandidateResponse getCandidateById(Long id);
+    CandidateDto.CandidateResponse createCandidate(CandidateDto.CandidateRequest request);
+    CandidateDto.CandidateResponse updateCandidate(Long id, CandidateDto.CandidateRequest request);
     void deleteCandidate(Long id);
 }

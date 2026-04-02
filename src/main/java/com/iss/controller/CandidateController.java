@@ -1,9 +1,9 @@
 package com.iss.controller;
 
-import com.iss.dto.candidate.CandidateRequest;
-import com.iss.dto.candidate.CandidateResponse;
+import com.iss.dto.candidate.CandidateDto;
 import com.iss.service.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,13 +17,13 @@ public class CandidateController {
     private CandidateService candidateService;
 
     @GetMapping
-    public List<CandidateResponse> getAllCandidates() {
+    public List<CandidateDto.CandidateResponse> getAllCandidates() {
         return candidateService.getAllCandidates();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CandidateResponse> getCandidateById(@PathVariable Long id) {
-        CandidateResponse response = candidateService.getCandidateById(id);
+    public ResponseEntity<CandidateDto.CandidateResponse> getCandidateById(@PathVariable Long id) {
+        CandidateDto.CandidateResponse response = candidateService.getCandidateById(id);
         if (response != null) {
             return ResponseEntity.ok(response);
         }
@@ -31,13 +31,14 @@ public class CandidateController {
     }
 
     @PostMapping
-    public ResponseEntity<CandidateResponse> createCandidate(@RequestBody CandidateRequest request) {
-        return ResponseEntity.ok(candidateService.createCandidate(request));
+    public ResponseEntity<CandidateDto.CandidateResponse> createCandidate(@RequestBody CandidateDto.CandidateRequest request) {
+        CandidateDto.CandidateResponse response = candidateService.createCandidate(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CandidateResponse> updateCandidate(@PathVariable Long id, @RequestBody CandidateRequest request) {
-        CandidateResponse response = candidateService.updateCandidate(id, request);
+    public ResponseEntity<CandidateDto.CandidateResponse> updateCandidate(@PathVariable Long id, @RequestBody CandidateDto.CandidateRequest request) {
+        CandidateDto.CandidateResponse response = candidateService.updateCandidate(id, request);
         if (response != null) {
             return ResponseEntity.ok(response);
         }

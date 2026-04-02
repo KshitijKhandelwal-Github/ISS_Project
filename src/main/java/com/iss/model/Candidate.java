@@ -15,10 +15,10 @@ import java.util.List;
 @Table(name = "candidates")
 public class Candidate {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne
+    @MapsId
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private Accounts accounts;
 
@@ -45,4 +45,12 @@ public class Candidate {
 
     @OneToMany(mappedBy = "candidate", fetch = FetchType.LAZY)
     private List<Interview> interviews;
+
+    @PrePersist
+    @PreUpdate
+    public void syncNameWithAccount() {
+        if (this.accounts != null) {
+            this.name = this.accounts.getFullName();
+        }
+    }
 }

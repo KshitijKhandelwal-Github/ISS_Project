@@ -35,9 +35,6 @@ public class Interview {
     @JoinColumn(name = "hr_id")
     private Users hr;
 
-    private String candidateName;
-    private String panelName;
-    private String hrName;
 
     @Enumerated(EnumType.STRING)
     private InterviewRound round;

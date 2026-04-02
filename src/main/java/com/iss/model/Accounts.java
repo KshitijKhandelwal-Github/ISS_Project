@@ -32,6 +32,7 @@ public class Accounts {
     @Column(nullable = false, length = 30)
     private RoleType role;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private UserStatus status = UserStatus.ACTIVE;

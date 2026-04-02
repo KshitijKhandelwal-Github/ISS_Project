@@ -19,8 +19,11 @@ public class Users {
 
     @OneToOne(optional = false)
     @MapsId
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "id", nullable = false, unique = true)
     private Accounts accounts;
+
+    @Column(nullable = false)
+    private String fullName;
 
     @Column(nullable = false, length = 100)
     private String department;
@@ -29,6 +32,7 @@ public class Users {
     @Enumerated(EnumType.STRING)
     private RoleType role;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
 
@@ -37,5 +41,13 @@ public class Users {
             throw new IllegalArgumentException("This type of user cannot have ROLE_CANDIDATE role");
         }
         this.role = role;
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void syncFullName() {
+        if (this.accounts != null) {
+            this.fullName = this.accounts.getFullName();
+        }
     }
 }
