@@ -11,7 +11,6 @@ import com.iss.dto.interview.InterviewResponse;
 import com.iss.model.Interview;
 import com.iss.event.InterviewScheduledEvent;
 import com.iss.repository.InterviewRepository;
-import com.iss.service.InterviewService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

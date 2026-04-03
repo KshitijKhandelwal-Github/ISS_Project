@@ -5,6 +5,7 @@ import com.iss.service.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,11 +18,13 @@ public class CandidateController {
     private CandidateService candidateService;
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('HR','TECHNICAL_PANEL', 'CANDIDATE')")
     public List<CandidateDto.CandidateResponse> getAllCandidates() {
         return candidateService.getAllCandidates();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('HR','TECHNICAL_PANEL', 'CANDIDATE')")
     public ResponseEntity<CandidateDto.CandidateResponse> getCandidateById(@PathVariable Long id) {
         CandidateDto.CandidateResponse response = candidateService.getCandidateById(id);
         if (response != null) {
@@ -31,12 +34,14 @@ public class CandidateController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('CANDIDATE')")
     public ResponseEntity<CandidateDto.CandidateResponse> createCandidate(@RequestBody CandidateDto.CandidateRequest request) {
         CandidateDto.CandidateResponse response = candidateService.createCandidate(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('CANDIDATE')")
     public ResponseEntity<CandidateDto.CandidateResponse> updateCandidate(@PathVariable Long id, @RequestBody CandidateDto.CandidateRequest request) {
         CandidateDto.CandidateResponse response = candidateService.updateCandidate(id, request);
         if (response != null) {
@@ -46,6 +51,7 @@ public class CandidateController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('HR','CANDIDATE')")
     public ResponseEntity<Void> deleteCandidate(@PathVariable Long id) {
         candidateService.deleteCandidate(id);
         return ResponseEntity.noContent().build();

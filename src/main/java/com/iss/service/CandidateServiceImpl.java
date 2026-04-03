@@ -1,9 +1,14 @@
 package com.iss.service;
 
 import com.iss.dto.candidate.CandidateDto;
+import com.iss.exception.ResourceNotFoundException;
+import com.iss.model.Accounts;
 import com.iss.model.Candidate;
+import com.iss.model.Interview;
+import com.iss.model.enums.RoleType;
 import com.iss.repository.AccountsRepository;
 import com.iss.repository.CandidateRepository;
+import com.iss.repository.InterviewRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +26,9 @@ public class CandidateServiceImpl implements CandidateService {
     @Autowired
     private AccountsRepository accountsRepository;
 
+    @Autowired
+    private InterviewRepository interviewRepository;
+
     @Override
     public List<CandidateDto.CandidateResponse> getAllCandidates() {
         log.info("Fetching all candidates");
@@ -34,7 +42,7 @@ public class CandidateServiceImpl implements CandidateService {
         log.info("Fetching candidate with id: {}", id);
         return candidateRepository.findById(id)
                 .map(this::mapToResponse)
-                .orElse(null);
+                .orElseThrow(() -> new ResourceNotFoundException("Candidate not found with id: " + id));
     }
 
     @Override
@@ -57,20 +65,24 @@ public class CandidateServiceImpl implements CandidateService {
                     log.info("Successfully updated candidate with id: {}", id);
                     return mapToResponse(updatedCandidate);
                 })
-                .orElse(null);
+                .orElseThrow( () ->  new ResourceNotFoundException("Candidate not found with id: " + id));
     }
 
     @Override
     public void deleteCandidate(Long id) {
         log.info("Deleting candidate with id: {}", id);
         if (candidateRepository.existsById(id)) {
+            List<Interview> candidateInterviews = interviewRepository.findByCandidateId(id);
+            interviewRepository.deleteAll(candidateInterviews);
             candidateRepository.deleteById(id);
+            accountsRepository.deleteById(id);
             log.info("Successfully deleted candidate with id: {}", id);
         }
     }
 
     private CandidateDto.CandidateResponse mapToResponse(Candidate candidate) {
         return CandidateDto.CandidateResponse.builder()
+                .accountId(candidate.getId())
                 .name(candidate.getName())
                 .accountId(candidate.getAccounts() != null ? candidate.getAccounts().getId() : null)
                 .cvReference(candidate.getCvReference())
@@ -95,8 +107,15 @@ public class CandidateServiceImpl implements CandidateService {
         candidate.setIsActive(request.getIsActive());
 
         if (request.getAccountId() != null) {
-            accountsRepository.findById(request.getAccountId())
-                    .ifPresent(candidate::setAccounts);
+            Accounts candidateAccount = accountsRepository.findById(request.getAccountId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Account not found with id: " + request.getAccountId()));
+
+            // Check if the account has the correct role
+            if (candidateAccount.getRole() != RoleType.ROLE_CANDIDATE) {
+                throw new IllegalArgumentException("The provided account does not have the CANDIDATE role.");
+            }
+
+            candidate.setAccounts(candidateAccount);
         } else {
             candidate.setAccounts(null);
         }
