@@ -41,15 +41,15 @@ public class InterviewController {
         return ResponseEntity.ok(interviewService.getAllInterviews());
     }
 
-    @GetMapping("/candidate/{id}")
+    @GetMapping("/candidate/{candidateId}")
     @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL','CANDIDATE')")
-    public ResponseEntity<List<InterviewResponse>> getInterviewByCandidateId(@RequestParam(required = false) Long candidateId) {
+    public ResponseEntity<List<InterviewResponse>> getInterviewByCandidateId(@PathVariable Long candidateId) {
         return ResponseEntity.ok(interviewService.getInterviewsByCandidate(candidateId));
     }
 
     @GetMapping("round/{round}")
     @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL')")
-    public ResponseEntity<List<InterviewResponse>> getInterviewsByRound(@RequestParam(required = false) InterviewRound round) {
+    public ResponseEntity<List<InterviewResponse>> getInterviewsByRound(@PathVariable InterviewRound round) {
         return ResponseEntity.ok(interviewService.getInterviewByRound(round));
     }
 
