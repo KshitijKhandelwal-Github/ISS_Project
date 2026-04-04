@@ -41,7 +41,7 @@ public class InterviewController {
         return ResponseEntity.ok(interviewService.getAllInterviews());
     }
 
-    @GetMapping("round/{round}")
+    @GetMapping("/candidate/{id}")
     @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL','CANDIDATE')")
     public ResponseEntity<List<InterviewResponse>> getInterviewByCandidateId(@RequestParam(required = false) Long candidateId) {
         return ResponseEntity.ok(interviewService.getInterviewsByCandidate(candidateId));
