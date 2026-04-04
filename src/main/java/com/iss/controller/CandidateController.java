@@ -1,6 +1,7 @@
 package com.iss.controller;
 
 import com.iss.dto.candidate.CandidateDto;
+import com.iss.model.enums.CandidateStatus;
 import com.iss.service.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ public class CandidateController {
     private CandidateService candidateService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('HR','TECHNICAL_PANEL', 'CANDIDATE')")
+    @PreAuthorize("hasAnyRole('HR','TECHNICAL_PANEL')")
     public List<CandidateDto.CandidateResponse> getAllCandidates() {
         return candidateService.getAllCandidates();
     }
@@ -31,6 +32,24 @@ public class CandidateController {
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/status/{status}")
+    @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL')")
+    public ResponseEntity<List<CandidateDto.CandidateResponse>>getCandidatesByStatus(@PathVariable CandidateStatus status) {
+        return ResponseEntity.ok(candidateService.getByStatus(status));
+    }
+
+    @GetMapping("/active/{isActive}")
+    @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL')")
+    public ResponseEntity<List<CandidateDto.CandidateResponse>> getCandidatesByActive(@PathVariable Boolean isActive) {
+        return ResponseEntity.ok(candidateService.getActiveCandidates(isActive));
+    }
+
+    @GetMapping("/skill/{skill}")
+    @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL')")
+    public ResponseEntity<List<CandidateDto.CandidateResponse>> getCandidatesBySkill(@PathVariable String skill) {
+        return ResponseEntity.ok(candidateService.getByPrimarySkill(skill));
     }
 
     @PostMapping

@@ -2,6 +2,7 @@ package com.iss.controller;
 
 import com.iss.dto.interview.InterviewRequest;
 import com.iss.dto.interview.InterviewResponse;
+import com.iss.model.enums.InterviewRound;
 import com.iss.service.InterviewService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,12 +36,21 @@ public class InterviewController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL', 'CANDIDATE')")
-    public ResponseEntity<List<InterviewResponse>> getAllInterviews(@RequestParam(required = false) Long candidateId) {
-        if (candidateId != null) {
-            return ResponseEntity.ok(interviewService.getInterviewsByCandidate(candidateId));
-        }
+    @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL')")
+    public ResponseEntity<List<InterviewResponse>> getAllInterviews() {
         return ResponseEntity.ok(interviewService.getAllInterviews());
+    }
+
+    @GetMapping("round/{round}")
+    @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL','CANDIDATE')")
+    public ResponseEntity<List<InterviewResponse>> getInterviewByCandidateId(@RequestParam(required = false) Long candidateId) {
+        return ResponseEntity.ok(interviewService.getInterviewsByCandidate(candidateId));
+    }
+
+    @GetMapping("round/{round}")
+    @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL')")
+    public ResponseEntity<List<InterviewResponse>> getInterviewsByRound(@RequestParam(required = false) InterviewRound round) {
+        return ResponseEntity.ok(interviewService.getInterviewByRound(round));
     }
 
     @GetMapping("/{id}")

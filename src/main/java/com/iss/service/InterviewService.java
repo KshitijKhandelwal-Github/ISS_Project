@@ -2,6 +2,7 @@ package com.iss.service;
 
 import com.iss.dto.interview.InterviewRequest;
 import com.iss.dto.interview.InterviewResponse;
+import com.iss.model.enums.InterviewRound;
 
 import java.util.List;
 
@@ -14,6 +15,8 @@ public interface InterviewService {
     List<InterviewResponse> getAllInterviews();
 
     List<InterviewResponse> getInterviewsByCandidate(Long candidateId);
+
+    List<InterviewResponse> getInterviewByRound(InterviewRound round);
 
     InterviewResponse getInterviewById(Long id);
 

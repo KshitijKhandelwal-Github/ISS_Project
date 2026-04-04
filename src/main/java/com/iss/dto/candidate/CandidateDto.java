@@ -16,6 +16,7 @@ public class CandidateDto {
     @Builder
     public static class CandidateRequest {
         private Long accountId;
+        private String name;
         private String cvReference;
         private String primarySkill;
         private String skillDetails;

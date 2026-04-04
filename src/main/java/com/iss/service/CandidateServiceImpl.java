@@ -5,6 +5,7 @@ import com.iss.exception.ResourceNotFoundException;
 import com.iss.model.Accounts;
 import com.iss.model.Candidate;
 import com.iss.model.Interview;
+import com.iss.model.enums.CandidateStatus;
 import com.iss.model.enums.RoleType;
 import com.iss.repository.AccountsRepository;
 import com.iss.repository.CandidateRepository;
@@ -35,6 +36,27 @@ public class CandidateServiceImpl implements CandidateService {
         return candidateRepository.findAll().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CandidateDto.CandidateResponse> getActiveCandidates(Boolean isActive) {
+        log.info("Fetching all active candidates");
+        return candidateRepository.findByIsActive(isActive).stream()
+                .map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CandidateDto.CandidateResponse> getByStatus(CandidateStatus status) {
+        log.info("Fetching all candidates with status {}", status);
+        return candidateRepository.findByStatus(status).stream()
+                .map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CandidateDto.CandidateResponse> getByPrimarySkill(String skill) {
+        log.info("Fetching all candidates with primary skill {}", skill);
+        return candidateRepository.findByPrimarySkill(skill).stream()
+                .map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Override
@@ -69,6 +91,16 @@ public class CandidateServiceImpl implements CandidateService {
     }
 
     @Override
+    public void softDeleteCandidate(Long id) {
+        log.info("Soft deleting candidate with id: {}", id);
+        Candidate candidate = candidateRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Candidate not found with id: " + id));
+        candidate.setIsActive(false);
+        candidateRepository.save(candidate);
+        log.info("Successfully soft deleted candidate with id: {}", id);
+    }
+
+    @Override
     public void deleteCandidate(Long id) {
         log.info("Deleting candidate with id: {}", id);
         if (candidateRepository.existsById(id)) {
@@ -77,6 +109,9 @@ public class CandidateServiceImpl implements CandidateService {
             candidateRepository.deleteById(id);
             accountsRepository.deleteById(id);
             log.info("Successfully deleted candidate with id: {}", id);
+        }
+        else{
+            throw new ResourceNotFoundException("Candidate not found with id: " + id);
         }
     }
 
@@ -114,7 +149,7 @@ public class CandidateServiceImpl implements CandidateService {
             if (candidateAccount.getRole() != RoleType.ROLE_CANDIDATE) {
                 throw new IllegalArgumentException("The provided account does not have the CANDIDATE role.");
             }
-
+            candidateAccount.setFullName(request.getName());
             candidate.setAccounts(candidateAccount);
         } else {
             candidate.setAccounts(null);

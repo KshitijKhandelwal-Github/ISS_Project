@@ -1,6 +1,7 @@
 package com.iss.service;
 
 import com.iss.model.Accounts;
+import com.iss.model.enums.InterviewRound;
 import com.iss.model.enums.RoleType;
 import com.iss.repository.AccountsRepository;
 import com.iss.model.Candidate;
@@ -9,9 +10,7 @@ import com.iss.exception.ResourceNotFoundException;
 import com.iss.dto.interview.InterviewRequest;
 import com.iss.dto.interview.InterviewResponse;
 import com.iss.model.Interview;
-import com.iss.event.InterviewScheduledEvent;
 import com.iss.repository.InterviewRepository;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,16 +23,13 @@ public class InterviewServiceImpl implements InterviewService {
     private final InterviewRepository interviewRepository;
     private final CandidateRepository candidateRepository;
     private final AccountsRepository userAccountRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
 
     public InterviewServiceImpl(InterviewRepository interviewRepository,
                                 CandidateRepository candidateRepository,
-                                AccountsRepository userAccountRepository,
-                                ApplicationEventPublisher applicationEventPublisher) {
+                                AccountsRepository userAccountRepository) {
         this.interviewRepository = interviewRepository;
         this.candidateRepository = candidateRepository;
         this.userAccountRepository = userAccountRepository;
-        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Override
@@ -48,9 +44,6 @@ public class InterviewServiceImpl implements InterviewService {
         applyInterviewRequest(interview, request, candidate, hrUser);
 
         Interview savedInterview = interviewRepository.save(interview);
-        applicationEventPublisher.publishEvent(
-                new InterviewScheduledEvent(savedInterview.getId(), candidate.getName(), hrUser.getFullName())
-        );
 
         return mapToResponse(savedInterview);
     }
@@ -73,6 +66,11 @@ public class InterviewServiceImpl implements InterviewService {
     @Transactional(readOnly = true)
     public List<InterviewResponse> getAllInterviews() {
         return interviewRepository.findAll().stream().map(this::mapToResponse).toList();
+    }
+
+    @Override
+    public List<InterviewResponse> getInterviewByRound(InterviewRound round){
+        return interviewRepository.findByRound(round).stream().map(this::mapToResponse).toList();
     }
 
     @Override
