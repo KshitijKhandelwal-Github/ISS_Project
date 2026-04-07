@@ -99,7 +99,7 @@ public class InterviewServiceImpl implements InterviewService {
 
 
     @Override
-    public List<InterviewResponse> getInterviewsByRound(InterviewRound round) {
+    public List<InterviewResponse> getInterviewByRound(InterviewRound round) {
         return interviewRepository.findByRound(round).stream().map(this::mapToResponse).toList();
     }
 
