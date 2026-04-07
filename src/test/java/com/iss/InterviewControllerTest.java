@@ -19,6 +19,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,6 +39,7 @@ class InterviewControllerTest {
                 .thenReturn(new InterviewResponse());
 
         mockMvc.perform(post("/api/interviews")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated());
@@ -45,11 +47,37 @@ class InterviewControllerTest {
 
     @Test
     @WithMockUser(authorities = "ROLE_TECHNICAL_PANEL")
+    void scheduleInterview_Failure() throws Exception {
+        InterviewRequest req = new InterviewRequest();
+
+        when(interviewService.scheduleInterview(any()))
+                .thenReturn(new InterviewResponse());
+
+        mockMvc.perform(post("/api/interviews")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(authorities = "ROLE_TECHNICAL_PANEL")
     void getAllInterviews_Success() throws Exception {
         when(interviewService.getAllInterviews()).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/interviews"))
+        mockMvc.perform(get("/api/interviews")
+                        .with(csrf()))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(authorities = "ROLE_CANDIDATE")
+    void getAllInterviews_Failure() throws Exception {
+        when(interviewService.getAllInterviews()).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/interviews")
+                        .with(csrf()))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -57,7 +85,7 @@ class InterviewControllerTest {
     void getInterviewByCandidateId_Success() throws Exception {
         when(interviewService.getInterviewsByCandidate(1L)).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/interviews/candidate/1"))
+        mockMvc.perform(get("/api/interviews/candidate/1").with(csrf()))
                 .andExpect(status().isOk());
     }
 
@@ -66,8 +94,17 @@ class InterviewControllerTest {
     void getInterviewsByRound_Success() throws Exception {
         when(interviewService.getInterviewByRound(any())).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/interviews/round/R1"))
+        mockMvc.perform(get("/api/interviews/round/R1").with(csrf()))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(authorities = "ROLE_CANDIDATE")
+    void getInterviewsByRound_Failure() throws Exception {
+        when(interviewService.getInterviewByRound(any())).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/interviews/round/R1").with(csrf()))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -76,7 +113,7 @@ class InterviewControllerTest {
         when(interviewService.getInterviewById(1L))
                 .thenReturn(new InterviewResponse());
 
-        mockMvc.perform(get("/api/interviews/1"))
+        mockMvc.perform(get("/api/interviews/1").with(csrf()))
                 .andExpect(status().isOk());
     }
 
@@ -89,15 +126,38 @@ class InterviewControllerTest {
                 .thenReturn(new InterviewResponse());
 
         mockMvc.perform(put("/api/interviews/1")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk());
     }
 
     @Test
+    @WithMockUser(authorities = "ROLE_CANDIDATE")
+    void updateInterview_Failure() throws Exception {
+        InterviewRequest req = new InterviewRequest();
+
+        when(interviewService.updateInterview(eq(1L), any()))
+                .thenReturn(new InterviewResponse());
+
+        mockMvc.perform(put("/api/interviews/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     @WithMockUser(authorities = "ROLE_HR")
     void deleteInterview_Success() throws Exception {
-        mockMvc.perform(delete("/api/interviews/1"))
+        mockMvc.perform(delete("/api/interviews/1").with(csrf()))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockUser(authorities = "ROLE_CANDIDATE")
+    void deleteInterview_Failure() throws Exception {
+        mockMvc.perform(delete("/api/interviews/1").with(csrf()))
+                .andExpect(status().isForbidden());
     }
 }
