@@ -2,6 +2,7 @@ package com.iss.service;
 
 import com.iss.dto.candidate.CandidateDto;
 import com.iss.exception.ResourceNotFoundException;
+import com.iss.event.CandidateStatusChangedEvent;
 import com.iss.model.Accounts;
 import com.iss.model.Candidate;
 import com.iss.model.Interview;
@@ -12,6 +13,7 @@ import com.iss.repository.CandidateRepository;
 import com.iss.repository.InterviewRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,6 +31,9 @@ public class CandidateServiceImpl implements CandidateService {
 
     @Autowired
     private InterviewRepository interviewRepository;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public List<CandidateDto.CandidateResponse> getAllCandidates() {
@@ -80,22 +85,25 @@ public class CandidateServiceImpl implements CandidateService {
     @Override
     public CandidateDto.CandidateResponse updateCandidate(Long id, CandidateDto.CandidateRequest request) {
         log.info("Updating candidate with id: {}", id);
-        Candidate candidate = candidateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Candidate not found with id: " + id));
-        if (request.getName()!=null) candidate.setName(request.getName());
-        if (request.getCvReference()!=null) candidate.setCvReference(request.getCvReference());
-        if (request.getStatus()!=null) candidate.setStatus(request.getStatus());
-        if (request.getLastWorkingDay()!=null) candidate.setLastWorkingDay(request.getLastWorkingDay());
-        if (request.getNoticePeriod()!=null) candidate.setNoticePeriod(request.getNoticePeriod());
-        if (request.getPrimarySkill()!=null) candidate.setPrimarySkill(request.getPrimarySkill());
-        if (request.getIsActive()!=null) candidate.setIsActive(request.getIsActive());
-        if (request.getSkillDetails()!=null) candidate.setSkillDetails(request.getSkillDetails());
-        if (request.getYearsOfExperience()!=null) candidate.setYearsOfExperience(request.getYearsOfExperience());
-
-        if (request.getAccountId()!=null){
-            Candidate candidate1 = candidateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account not found with id: " + id));
-            candidate.setId(candidate1.getId());
-        }
-        return mapToResponse(candidateRepository.save(candidate));
+        return candidateRepository.findById(id)
+                .map(candidate -> {
+                    CandidateStatus oldStatus = candidate.getStatus();
+                    mapRequestToEntity(request, candidate);
+                    Candidate updatedCandidate = candidateRepository.save(candidate);
+                    if (oldStatus != updatedCandidate.getStatus()) {
+                        applicationEventPublisher.publishEvent(
+                                new CandidateStatusChangedEvent(
+                                        updatedCandidate.getId(),
+                                        updatedCandidate.getName(),
+                                        oldStatus,
+                                        updatedCandidate.getStatus()
+                                )
+                        );
+                    }
+                    log.info("Successfully updated candidate with id: {}", id);
+                    return mapToResponse(updatedCandidate);
+                })
+                .orElseThrow( () ->  new ResourceNotFoundException("Candidate not found with id: " + id));
     }
 
     @Override
