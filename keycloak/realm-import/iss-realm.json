@@ -1,0 +1,66 @@
+{
+  "realm": "iss",
+  "enabled": true,
+  "displayName": "Interview Scheduling System",
+  "roles": {
+    "realm": [
+      { "name": "HR" },
+      { "name": "TECHNICAL_PANEL" },
+      { "name": "CANDIDATE" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "iss-client",
+      "name": "ISS Client",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8080/login/oauth2/code/keycloak",
+        "https://oauth.pstmn.io/v1/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:8080",
+        "https://oauth.pstmn.io"
+      ],
+      "attributes": {"pkce.code.challenge.method": "S256"},
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "username": "hr.admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "HR",
+      "lastName": "Admin",
+      "email": "hr.admin@iss.local",
+      "realmRoles": ["HR"],
+      "credentials": [{"type": "password", "value": "password", "temporary": false}]
+    },
+    {
+      "username": "panel.member",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Panel",
+      "lastName": "Member",
+      "email": "panel.member@iss.local",
+      "realmRoles": ["TECHNICAL_PANEL"],
+      "credentials": [{"type": "password", "value": "password", "temporary": false}]
+    },
+    {
+      "username": "candidate.user",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Candidate",
+      "lastName": "User",
+      "email": "candidate.user@iss.local",
+      "realmRoles": ["CANDIDATE"],
+      "credentials": [{"type": "password", "value": "password", "temporary": false}]
+    }
+  ]
+}

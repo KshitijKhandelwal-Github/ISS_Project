@@ -1,0 +1,50 @@
+app:
+  security:
+    mode: local-jwt
+  notifications:
+    email:
+      default-recipient: hr.admin@iss.local
+    kafka:
+      enabled: true
+      topic: iss.notifications
+
+spring:
+  application:
+    name: interview-scheduling-system
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: iss-notification-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.iss.notification.dto
+        spring.json.value.default.type: com.iss.notification.dto.NotificationEvent
+    listener:
+      missing-topics-fatal: false
+  profiles:
+    active: h2
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    com.iss: INFO
+
+security:
+  jwt:
+    secret: iss-secret-key-for-jwt-signing-2026!
+    expiration-hours: 12
