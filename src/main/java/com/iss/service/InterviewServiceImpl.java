@@ -50,15 +50,33 @@ public class InterviewServiceImpl implements InterviewService {
 
     @Override
     public InterviewResponse updateInterview(Long id, InterviewRequest request) {
-        validateInterviewRequest(request);
+
+        // 1. Find the existing interview
         Interview interview = interviewRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Interview not found with id: " + id));
 
-        Candidate candidate = candidateRepository.findById(request.getCandidateId())
-                .orElseThrow(() -> new ResourceNotFoundException("Candidate not found with id: " + request.getCandidateId()));
+        // 2. Update basic fields only if they are not null in the request
+        if (request.getInterviewDate() != null) interview.setInterviewDate(request.getInterviewDate());
+        if (request.getTimeSlot() != null) interview.setTimeSlot(request.getTimeSlot());
+        if (request.getStatus() != null) interview.setStatus(request.getStatus());
+        if (request.getRound() != null) interview.setRound(request.getRound());
+        if (request.getPanelName() != null) interview.setPanelName(request.getPanelName());
 
-        Accounts hrUser = findHrUser(request.getHrUserId());
-        applyInterviewRequest(interview, request, candidate, hrUser);
+        // 3. FIX: Only look up Candidate if ID is provided
+        if (request.getCandidateId() != null) {
+            Candidate candidate = candidateRepository.findById(request.getCandidateId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Candidate not found with id: " + request.getCandidateId()));
+            interview.setCandidate(candidate);
+        }
+
+        // 4. FIX: Only look up HR User if ID is provided
+        if (request.getHrUserId() != null) {
+            Accounts hrUser = findHrUser(request.getHrUserId());
+            interview.setHrUser(hrUser);
+        }
+
+        // 5. Save and Return
         return mapToResponse(interviewRepository.save(interview));
     }
 

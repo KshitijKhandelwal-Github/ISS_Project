@@ -80,14 +80,22 @@ public class CandidateServiceImpl implements CandidateService {
     @Override
     public CandidateDto.CandidateResponse updateCandidate(Long id, CandidateDto.CandidateRequest request) {
         log.info("Updating candidate with id: {}", id);
-        return candidateRepository.findById(id)
-                .map(candidate -> {
-                    mapRequestToEntity(request, candidate);
-                    Candidate updatedCandidate = candidateRepository.save(candidate);
-                    log.info("Successfully updated candidate with id: {}", id);
-                    return mapToResponse(updatedCandidate);
-                })
-                .orElseThrow( () ->  new ResourceNotFoundException("Candidate not found with id: " + id));
+        Candidate candidate = candidateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Candidate not found with id: " + id));
+        if (request.getName()!=null) candidate.setName(request.getName());
+        if (request.getCvReference()!=null) candidate.setCvReference(request.getCvReference());
+        if (request.getStatus()!=null) candidate.setStatus(request.getStatus());
+        if (request.getLastWorkingDay()!=null) candidate.setLastWorkingDay(request.getLastWorkingDay());
+        if (request.getNoticePeriod()!=null) candidate.setNoticePeriod(request.getNoticePeriod());
+        if (request.getPrimarySkill()!=null) candidate.setPrimarySkill(request.getPrimarySkill());
+        if (request.getIsActive()!=null) candidate.setIsActive(request.getIsActive());
+        if (request.getSkillDetails()!=null) candidate.setSkillDetails(request.getSkillDetails());
+        if (request.getYearsOfExperience()!=null) candidate.setYearsOfExperience(request.getYearsOfExperience());
+
+        if (request.getAccountId()!=null){
+            Candidate candidate1 = candidateRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Account not found with id: " + id));
+            candidate.setId(candidate1.getId());
+        }
+        return mapToResponse(candidateRepository.save(candidate));
     }
 
     @Override
