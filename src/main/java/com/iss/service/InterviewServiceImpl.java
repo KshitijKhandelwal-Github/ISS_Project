@@ -9,8 +9,10 @@ import com.iss.repository.CandidateRepository;
 import com.iss.exception.ResourceNotFoundException;
 import com.iss.dto.interview.InterviewRequest;
 import com.iss.dto.interview.InterviewResponse;
+import com.iss.event.InterviewScheduledEvent;
 import com.iss.model.Interview;
 import com.iss.repository.InterviewRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,13 +25,16 @@ public class InterviewServiceImpl implements InterviewService {
     private final InterviewRepository interviewRepository;
     private final CandidateRepository candidateRepository;
     private final AccountsRepository userAccountRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     public InterviewServiceImpl(InterviewRepository interviewRepository,
                                 CandidateRepository candidateRepository,
-                                AccountsRepository userAccountRepository) {
+                                AccountsRepository userAccountRepository,
+                                ApplicationEventPublisher applicationEventPublisher) {
         this.interviewRepository = interviewRepository;
         this.candidateRepository = candidateRepository;
         this.userAccountRepository = userAccountRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Override
@@ -44,39 +49,34 @@ public class InterviewServiceImpl implements InterviewService {
         applyInterviewRequest(interview, request, candidate, hrUser);
 
         Interview savedInterview = interviewRepository.save(interview);
+        applicationEventPublisher.publishEvent(
+                new InterviewScheduledEvent(
+                        savedInterview.getId(),
+                        candidate.getName(),
+                        hrUser.getFullName(),
+                        hrUser.getEmail(),
+                        savedInterview.getInterviewDate(),
+                        savedInterview.getTimeSlot(),
+                        savedInterview.getPanelName(),
+                        savedInterview.getRound(),
+                        savedInterview.getStatus()
+                )
+        );
 
         return mapToResponse(savedInterview);
     }
 
     @Override
     public InterviewResponse updateInterview(Long id, InterviewRequest request) {
-
-        // 1. Find the existing interview
+        validateInterviewRequest(request);
         Interview interview = interviewRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Interview not found with id: " + id));
 
-        // 2. Update basic fields only if they are not null in the request
-        if (request.getInterviewDate() != null) interview.setInterviewDate(request.getInterviewDate());
-        if (request.getTimeSlot() != null) interview.setTimeSlot(request.getTimeSlot());
-        if (request.getStatus() != null) interview.setStatus(request.getStatus());
-        if (request.getRound() != null) interview.setRound(request.getRound());
-        if (request.getPanelName() != null) interview.setPanelName(request.getPanelName());
+        Candidate candidate = candidateRepository.findById(request.getCandidateId())
+                .orElseThrow(() -> new ResourceNotFoundException("Candidate not found with id: " + request.getCandidateId()));
 
-        // 3. FIX: Only look up Candidate if ID is provided
-        if (request.getCandidateId() != null) {
-            Candidate candidate = candidateRepository.findById(request.getCandidateId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Candidate not found with id: " + request.getCandidateId()));
-            interview.setCandidate(candidate);
-        }
-
-        // 4. FIX: Only look up HR User if ID is provided
-        if (request.getHrUserId() != null) {
-            Accounts hrUser = findHrUser(request.getHrUserId());
-            interview.setHrUser(hrUser);
-        }
-
-        // 5. Save and Return
+        Accounts hrUser = findHrUser(request.getHrUserId());
+        applyInterviewRequest(interview, request, candidate, hrUser);
         return mapToResponse(interviewRepository.save(interview));
     }
 
@@ -87,17 +87,20 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     @Override
-    public List<InterviewResponse> getInterviewByRound(InterviewRound round){
-        return interviewRepository.findByRound(round).stream().map(this::mapToResponse).toList();
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public List<InterviewResponse> getInterviewsByCandidate(Long candidateId) {
         if (!candidateRepository.existsById(candidateId)) {
             throw new ResourceNotFoundException("Candidate not found with id: " + candidateId);
         }
         return interviewRepository.findByCandidateId(candidateId).stream().map(this::mapToResponse).toList();
+    }
+
+
+
+
+    @Override
+    public List<InterviewResponse> getInterviewsByRound(InterviewRound round) {
+        return interviewRepository.findByRound(round).stream().map(this::mapToResponse).toList();
     }
 
     @Override
