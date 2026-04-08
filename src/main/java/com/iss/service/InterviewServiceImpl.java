@@ -128,7 +128,6 @@ public class InterviewServiceImpl implements InterviewService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<InterviewResponse> getInterviewsByUser(Long userId) {
         if (!userAccountRepository.existsById(userId)) {
             throw new ResourceNotFoundException("User not found with id: " + userId);

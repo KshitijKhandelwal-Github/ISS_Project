@@ -55,7 +55,7 @@ class CandidateControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = "ROLE_CANDIDATE")
+    @WithMockUser(authorities = "ROLE_HR")
     void getCandidateById_Success() throws Exception {
         CandidateDto.CandidateResponse res = new CandidateDto.CandidateResponse();
         res.setAccountId(1L);
@@ -110,7 +110,7 @@ class CandidateControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = "ROLE_CANDIDATE")
+    @WithMockUser(authorities = "ROLE_HR")
     void createCandidate_Success() throws Exception {
         CandidateDto.CandidateRequest req = new CandidateDto.CandidateRequest();
         req.setAccountId(1L);
@@ -144,7 +144,7 @@ class CandidateControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = "ROLE_CANDIDATE")
+    @WithMockUser(authorities = "ROLE_HR")
     void updateCandidate_Success() throws Exception {
         CandidateDto.CandidateRequest req = new CandidateDto.CandidateRequest();
 

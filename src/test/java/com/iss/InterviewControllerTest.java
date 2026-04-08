@@ -5,6 +5,7 @@ import com.iss.controller.InterviewController;
 
 import com.iss.dto.interview.InterviewRequest;
 import com.iss.dto.interview.InterviewResponse;
+import com.iss.repository.AccountsRepository;
 import com.iss.service.InterviewService;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -29,6 +30,8 @@ class InterviewControllerTest {
     @Autowired private MockMvc mockMvc;
     @MockBean private InterviewService interviewService;
     @Autowired private ObjectMapper objectMapper;
+    @MockBean
+    private AccountsRepository accountsRepository;
 
     @Test
     @WithMockUser(authorities = "ROLE_HR")
@@ -81,7 +84,7 @@ class InterviewControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = "ROLE_CANDIDATE")
+    @WithMockUser(authorities = "ROLE_HR")
     void getInterviewByCandidateId_Success() throws Exception {
         when(interviewService.getInterviewsByCandidate(1L)).thenReturn(List.of());
 
@@ -108,7 +111,7 @@ class InterviewControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = "ROLE_CANDIDATE")
+    @WithMockUser(authorities = "ROLE_HR")
     void getInterviewById_Success() throws Exception {
         when(interviewService.getInterviewById(1L))
                 .thenReturn(new InterviewResponse());

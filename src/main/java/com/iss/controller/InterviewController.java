@@ -2,12 +2,16 @@ package com.iss.controller;
 
 import com.iss.dto.interview.InterviewRequest;
 import com.iss.dto.interview.InterviewResponse;
+import com.iss.model.Accounts;
 import com.iss.model.enums.InterviewRound;
+import com.iss.repository.AccountsRepository;
 import com.iss.service.InterviewService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,8 +31,11 @@ public class InterviewController {
 
     private final InterviewService interviewService;
 
-    public InterviewController(InterviewService interviewService) {
+    private final AccountsRepository accountsRepository;
+
+    public InterviewController(InterviewService interviewService, AccountsRepository accountsRepository) {
         this.interviewService = interviewService;
+        this.accountsRepository = accountsRepository;
     }
 
     @PostMapping
@@ -38,11 +45,31 @@ public class InterviewController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('HR')")
-    public ResponseEntity<List<InterviewResponse>> getAllInterviews(@RequestParam(required = false) Long userId) {
+    @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL')")
+    public ResponseEntity<List<InterviewResponse>> getAllInterviews(
+            @RequestParam(required = false) Long userId,
+            Authentication authentication) {
+
+        boolean isPanelMember = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_TECHNICAL_PANEL"));
+
+        if (isPanelMember) {
+
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            String email = jwt.getClaim("email");
+
+            Accounts account = accountsRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            return ResponseEntity.ok(
+                    interviewService.getInterviewsByUser(account.getId())
+            );
+        }
+
         if (userId != null) {
             return ResponseEntity.ok(interviewService.getInterviewsByUser(userId));
         }
+
         return ResponseEntity.ok(interviewService.getAllInterviews());
     }
 
