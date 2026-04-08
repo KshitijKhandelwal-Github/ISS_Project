@@ -47,19 +47,25 @@ public class InterviewController {
     }
 
     @GetMapping("/candidate/{candidateId}")
-    @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL','CANDIDATE')")
+    @PreAuthorize("hasAnyRole('HR','CANDIDATE')")
     public ResponseEntity<List<InterviewResponse>> getInterviewByCandidateId(@PathVariable Long candidateId) {
         return ResponseEntity.ok(interviewService.getInterviewsByCandidate(candidateId));
     }
 
+    @GetMapping("/panel/{panelId}")
+    @PreAuthorize("hasAnyRole('HR','TECHNICAL_PANEL')")
+    public ResponseEntity<List<InterviewResponse>> getInterviewByPanelId(@PathVariable Long panelId) {
+        return ResponseEntity.ok(interviewService.getInterviewsByUser(panelId));
+    }
+
     @GetMapping("round/{round}")
-    @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL')")
+    @PreAuthorize("hasAnyRole('HR')")
     public ResponseEntity<List<InterviewResponse>> getInterviewsByRound(@PathVariable InterviewRound round) {
         return ResponseEntity.ok(interviewService.getInterviewByRound(round));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL', 'CANDIDATE')")
+    @PreAuthorize("hasAnyRole('HR')")
     public ResponseEntity<InterviewResponse> getInterviewById(@PathVariable Long id) {
         return ResponseEntity.ok(interviewService.getInterviewById(id));
     }

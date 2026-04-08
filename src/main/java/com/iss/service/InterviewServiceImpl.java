@@ -136,9 +136,6 @@ public class InterviewServiceImpl implements InterviewService {
         return interviewRepository.findByHrUserIdOrPanelUserId(userId, userId).stream().map(this::mapToResponse).toList();
     }
 
-
-
-
     @Override
     public List<InterviewResponse> getInterviewByRound(InterviewRound round) {
         return interviewRepository.findByRound(round).stream().map(this::mapToResponse).toList();

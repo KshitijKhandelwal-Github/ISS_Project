@@ -21,13 +21,13 @@ public class CandidateController {
     private CandidateService candidateService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('HR','TECHNICAL_PANEL')")
+    @PreAuthorize("hasAnyRole('HR')")
     public List<CandidateDto.CandidateResponse> getAllCandidates() {
         return candidateService.getAllCandidates();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HR','TECHNICAL_PANEL', 'CANDIDATE')")
+    @PreAuthorize("hasAnyRole('HR')")
     public ResponseEntity<CandidateDto.CandidateResponse> getCandidateById(@PathVariable Long id) {
         CandidateDto.CandidateResponse response = candidateService.getCandidateById(id);
         if (response != null) {
@@ -49,20 +49,20 @@ public class CandidateController {
     }
 
     @GetMapping("/skill/{skill}")
-    @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL')")
+    @PreAuthorize("hasAnyRole('HR')")
     public ResponseEntity<List<CandidateDto.CandidateResponse>> getCandidatesBySkill(@PathVariable String skill) {
         return ResponseEntity.ok(candidateService.getByPrimarySkill(skill));
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('CANDIDATE')")
+    @PreAuthorize("hasRole('HR')")
     public ResponseEntity<CandidateDto.CandidateResponse> createCandidate(@RequestBody CandidateDto.CandidateRequest request) {
         CandidateDto.CandidateResponse response = candidateService.createCandidate(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('CANDIDATE','HR')")
+    @PreAuthorize("hasAnyRole('HR')")
     public ResponseEntity<CandidateDto.CandidateResponse> updateCandidate(@PathVariable Long id, @RequestBody CandidateDto.CandidateRequest request) {
         CandidateDto.CandidateResponse response = candidateService.updateCandidate(id, request);
         if (response != null) {
@@ -72,7 +72,7 @@ public class CandidateController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HR','CANDIDATE')")
+    @PreAuthorize("hasAnyRole('HR')")
     public ResponseEntity<Void> deleteCandidate(@PathVariable Long id) {
         candidateService.deleteCandidate(id);
         return ResponseEntity.noContent().build();
