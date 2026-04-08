@@ -17,10 +17,9 @@ public class InterviewRequest {
 
     private LocalDate interviewDate;
     private LocalTime timeSlot;
-    private String panelName;
+    private Long panelId;
     private Long candidateId;
     private Long hrUserId;
-    private Long panelUserId;
     private InterviewRound round;
     private InterviewStatus status;
 

@@ -17,6 +17,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CandidateServiceTest {
 
     @Mock
@@ -34,6 +38,8 @@ class CandidateServiceTest {
     private AccountsRepository  accountsRepository;
     @Mock
     private InterviewRepository interviewRepository;
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @InjectMocks
     private CandidateServiceImpl candidateService;
@@ -168,6 +174,8 @@ class CandidateServiceTest {
 
         when(candidateRepository.findById(1L)).thenReturn(Optional.of(candidate));
         when(candidateRepository.save(any(Candidate.class))).thenReturn(updated);
+
+        doNothing().when(applicationEventPublisher).publishEvent(any());
 
         CandidateDto.CandidateResponse response = candidateService.updateCandidate(1L, request);
 

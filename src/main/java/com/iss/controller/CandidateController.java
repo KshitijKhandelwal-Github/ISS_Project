@@ -62,7 +62,7 @@ public class CandidateController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('CANDIDATE')")
+    @PreAuthorize("hasAnyRole('CANDIDATE','HR')")
     public ResponseEntity<CandidateDto.CandidateResponse> updateCandidate(@PathVariable Long id, @RequestBody CandidateDto.CandidateRequest request) {
         CandidateDto.CandidateResponse response = candidateService.updateCandidate(id, request);
         if (response != null) {

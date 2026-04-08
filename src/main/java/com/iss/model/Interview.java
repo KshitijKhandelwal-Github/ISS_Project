@@ -27,9 +27,6 @@ public class Interview {
     @Column(nullable = false)
     private LocalTime timeSlot;
 
-    @Column(nullable = false, length = 100)
-    private String panelName;
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "candidate_id", nullable = false)
     private Candidate candidate;
@@ -39,7 +36,7 @@ public class Interview {
     private Accounts hrUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "panel_user_id")
+    @JoinColumn(name = "panel_user_id",nullable = false)
     private Accounts panelUser;
 
     @Enumerated(EnumType.STRING)

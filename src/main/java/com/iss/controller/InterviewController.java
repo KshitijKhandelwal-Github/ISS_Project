@@ -38,7 +38,7 @@ public class InterviewController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('HR', 'TECHNICAL_PANEL', 'CANDIDATE')")
+    @PreAuthorize("hasAnyRole('HR')")
     public ResponseEntity<List<InterviewResponse>> getAllInterviews(@RequestParam(required = false) Long userId) {
         if (userId != null) {
             return ResponseEntity.ok(interviewService.getInterviewsByUser(userId));

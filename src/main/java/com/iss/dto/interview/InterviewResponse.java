@@ -17,6 +17,7 @@ public class InterviewResponse {
     private Long id;
     private LocalDate interviewDate;
     private LocalTime timeSlot;
+    private Long panelId;
     private String panelName;
     private Long candidateId;
     private String candidateName;

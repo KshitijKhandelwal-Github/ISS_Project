@@ -2,10 +2,13 @@ package com.iss.event;
 
 import com.iss.model.enums.InterviewRound;
 import com.iss.model.enums.InterviewStatus;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-
+@Getter
+@Setter
 public class InterviewScheduledEvent {
 
     private final Long interviewId;
@@ -15,6 +18,7 @@ public class InterviewScheduledEvent {
     private final LocalDate interviewDate;
     private final LocalTime timeSlot;
     private final String panelName;
+    private final String panelEmail;
     private final InterviewRound round;
     private final InterviewStatus status;
 
@@ -22,9 +26,10 @@ public class InterviewScheduledEvent {
                                    String candidateName,
                                    String hrName,
                                    String hrEmail,
+                                   String panelName,
+                                   String panelEmail,
                                    LocalDate interviewDate,
                                    LocalTime timeSlot,
-                                   String panelName,
                                    InterviewRound round,
                                    InterviewStatus status) {
         this.interviewId = interviewId;
@@ -34,43 +39,8 @@ public class InterviewScheduledEvent {
         this.interviewDate = interviewDate;
         this.timeSlot = timeSlot;
         this.panelName = panelName;
+        this.panelEmail = panelEmail;
         this.round = round;
         this.status = status;
-    }
-
-    public Long getInterviewId() {
-        return interviewId;
-    }
-
-    public String getCandidateName() {
-        return candidateName;
-    }
-
-    public String getHrName() {
-        return hrName;
-    }
-
-    public String getHrEmail() {
-        return hrEmail;
-    }
-
-    public LocalDate getInterviewDate() {
-        return interviewDate;
-    }
-
-    public LocalTime getTimeSlot() {
-        return timeSlot;
-    }
-
-    public String getPanelName() {
-        return panelName;
-    }
-
-    public InterviewRound getRound() {
-        return round;
-    }
-
-    public InterviewStatus getStatus() {
-        return status;
     }
 }

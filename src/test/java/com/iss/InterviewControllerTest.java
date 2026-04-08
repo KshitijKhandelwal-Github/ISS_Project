@@ -61,7 +61,7 @@ class InterviewControllerTest {
     }
 
     @Test
-    @WithMockUser(authorities = "ROLE_TECHNICAL_PANEL")
+    @WithMockUser(authorities = "ROLE_HR")
     void getAllInterviews_Success() throws Exception {
         when(interviewService.getAllInterviews()).thenReturn(List.of());
 
@@ -72,7 +72,7 @@ class InterviewControllerTest {
 
     @Test
     @WithMockUser(authorities = "ROLE_CANDIDATE")
-    void getAllInterviews_Failure() throws Exception {
+    void getAllInterviews_ShouldReturn403() throws Exception {
         when(interviewService.getAllInterviews()).thenReturn(List.of());
 
         mockMvc.perform(get("/api/interviews")

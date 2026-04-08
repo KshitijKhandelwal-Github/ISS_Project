@@ -44,7 +44,7 @@ public class InterviewServiceImpl implements InterviewService {
                 .orElseThrow(() -> new ResourceNotFoundException("Candidate not found with id: " + request.getCandidateId()));
 
         Accounts hrUser = findHrUser(request.getHrUserId());
-        Accounts panelUser = findPanelUser(request.getPanelUserId());
+        Accounts panelUser = findPanelUser(request.getPanelId());
 
         Interview interview = new Interview();
         applyInterviewRequest(interview, request, candidate, hrUser, panelUser);
@@ -56,9 +56,10 @@ public class InterviewServiceImpl implements InterviewService {
                         candidate.getName(),
                         hrUser.getFullName(),
                         hrUser.getEmail(),
+                        panelUser.getFullName(),
+                        panelUser.getEmail(),
                         savedInterview.getInterviewDate(),
                         savedInterview.getTimeSlot(),
-                        savedInterview.getPanelName(),
                         savedInterview.getRound(),
                         savedInterview.getStatus()
                 )
@@ -69,17 +70,46 @@ public class InterviewServiceImpl implements InterviewService {
 
     @Override
     public InterviewResponse updateInterview(Long id, InterviewRequest request) {
-        validateInterviewRequest(request);
+
+        // 1. Find the existing record (The "Original")
         Interview interview = interviewRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Interview not found with id: " + id));
 
-        Candidate candidate = candidateRepository.findById(request.getCandidateId())
-                .orElseThrow(() -> new ResourceNotFoundException("Candidate not found with id: " + request.getCandidateId()));
+        // 2. PARTIAL UPDATES: Only update fields that are NOT NULL in the request
+        if (request.getInterviewDate() != null) {
+            interview.setInterviewDate(request.getInterviewDate());
+        }
+        if (request.getTimeSlot() != null) {
+            interview.setTimeSlot(request.getTimeSlot());
+        }
+        if (request.getRound() != null) {
+            interview.setRound(request.getRound());
+        }
+        if (request.getStatus() != null) {
+            interview.setStatus(request.getStatus());
+        }
 
-        Accounts hrUser = findHrUser(request.getHrUserId());
-        Accounts panelUser = findPanelUser(request.getPanelUserId());
-        applyInterviewRequest(interview, request, candidate, hrUser, panelUser);
-        return mapToResponse(interviewRepository.save(interview));
+        // 3. OPTIONAL RELATIONSHIPS: Only look up and link if IDs are provided
+        if (request.getCandidateId() != null) {
+            Candidate candidate = candidateRepository.findById(request.getCandidateId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Candidate not found with id: " + request.getCandidateId()));
+            interview.setCandidate(candidate);
+        }
+
+        if (request.getHrUserId() != null) {
+            Accounts hrUser = findHrUser(request.getHrUserId());
+            interview.setHrUser(hrUser);
+        }
+
+        if (request.getPanelId() != null) {
+            Accounts panelUser = findPanelUser(request.getPanelId());
+            interview.setPanelUser(panelUser);
+        }
+
+        // 4. Save the modified "Original"
+        Interview savedInterview = interviewRepository.save(interview);
+        return mapToResponse(savedInterview);
     }
 
     @Override
@@ -165,7 +195,7 @@ public class InterviewServiceImpl implements InterviewService {
                                        Accounts panelUser) {
         interview.setInterviewDate(request.getInterviewDate());
         interview.setTimeSlot(request.getTimeSlot());
-        interview.setPanelName(request.getPanelName());
+        interview.setPanelUser(panelUser);
         interview.setCandidate(candidate);
         interview.setHrUser(hrUser);
         interview.setPanelUser(panelUser);
@@ -178,7 +208,8 @@ public class InterviewServiceImpl implements InterviewService {
         response.setId(interview.getId());
         response.setInterviewDate(interview.getInterviewDate());
         response.setTimeSlot(interview.getTimeSlot());
-        response.setPanelName(interview.getPanelName());
+        response.setPanelId(interview.getPanelUser().getId());
+        response.setPanelName(interview.getPanelUser().getFullName());
         response.setCandidateId(interview.getCandidate().getId());
         response.setCandidateName(interview.getCandidate().getName());
         response.setHrUserId(interview.getHrUser().getId());

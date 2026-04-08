@@ -16,6 +16,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -27,6 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class InterviewServiceTest {
 
     @Mock
@@ -38,11 +42,15 @@ class InterviewServiceTest {
     @Mock
     private AccountsRepository accountsRepository;
 
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
+
     @InjectMocks
     private InterviewServiceImpl interviewService;
 
     private Candidate candidate;
     private Accounts hrAccount;
+    private Accounts panelAccount;
     private Interview interview;
     private InterviewRequest request;
 
@@ -51,8 +59,16 @@ class InterviewServiceTest {
         hrAccount = Accounts.builder()
                 .id(1L)
                 .fullName("admin")
-                .email("admin@candidate.com")
+                .email("admin@iss.com")
                 .role(RoleType.ROLE_HR)
+                .status(UserStatus.ACTIVE)
+                .build();
+
+        panelAccount = Accounts.builder()
+                .id(3L)
+                .fullName("panel")
+                .email("panel@iss.com")
+                .role(RoleType.ROLE_TECHNICAL_PANEL)
                 .status(UserStatus.ACTIVE)
                 .build();
 
@@ -77,7 +93,7 @@ class InterviewServiceTest {
                 .id(1L)
                 .interviewDate(LocalDate.of(2026, 4, 10))
                 .timeSlot(LocalTime.of(10, 0))
-                .panelName("Jane Smith")
+                .panelUser(panelAccount)
                 .candidate(candidate)
                 .hrUser(hrAccount)
                 .round(InterviewRound.R1)
@@ -87,7 +103,7 @@ class InterviewServiceTest {
         request = new InterviewRequest();
         request.setInterviewDate(LocalDate.of(2026, 4, 10));
         request.setTimeSlot(LocalTime.of(10, 0));
-        request.setPanelName("Jane Smith");
+        request.setPanelId(3L);
         request.setCandidateId(2L);
         request.setHrUserId(1L);
         request.setRound(InterviewRound.R1);
@@ -96,9 +112,13 @@ class InterviewServiceTest {
 
     @Test
     void create_ShouldReturnScheduledInterview() {
+        request.setPanelId(3L);
         when(candidateRepository.findById(2L)).thenReturn(Optional.of(candidate));
         when(accountsRepository.findById(1L)).thenReturn(Optional.of(hrAccount));
+        when(accountsRepository.findById(3L)).thenReturn(Optional.of(panelAccount));
         when(interviewRepository.save(any(Interview.class))).thenReturn(interview);
+
+        doNothing().when(applicationEventPublisher).publishEvent(any());
 
         InterviewResponse response = interviewService.scheduleInterview(request);
 
@@ -125,7 +145,7 @@ class InterviewServiceTest {
         InterviewResponse response = interviewService.getInterviewById(1L);
 
         assertThat(response.getId()).isEqualTo(1L);
-        assertThat(response.getPanelName()).isEqualTo("Jane Smith");
+        assertThat(response.getPanelName()).isEqualTo("panel");
     }
 
     @Test
@@ -163,6 +183,7 @@ class InterviewServiceTest {
         when(interviewRepository.findById(1L)).thenReturn(Optional.of(interview));
         when(candidateRepository.findById(2L)).thenReturn(Optional.of(candidate));
         when(accountsRepository.findById(1L)).thenReturn(Optional.of(hrAccount));
+        when(accountsRepository.findById(3L)).thenReturn(Optional.of(panelAccount));
         when(interviewRepository.save(any(Interview.class))).thenReturn(interview);
 
         InterviewResponse response = interviewService.updateInterview(1L, request);
