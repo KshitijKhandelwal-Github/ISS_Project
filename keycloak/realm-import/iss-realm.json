@@ -61,16 +61,6 @@
       "email": "candidate.user@iss.local",
       "realmRoles": ["CANDIDATE"],
       "credentials": [{"type": "password", "value": "password", "temporary": false}]
-    },
-    {
-      "username": "panel.member2",
-      "enabled": true,
-      "emailVerified": true,
-      "firstName": "Panel",
-      "lastName": "Member2",
-      "email": "panel.member@iss.local",
-      "realmRoles": ["TECHNICAL_PANEL"],
-      "credentials": [{"type": "password", "value": "password", "temporary": false}]
     }
   ]
 }
