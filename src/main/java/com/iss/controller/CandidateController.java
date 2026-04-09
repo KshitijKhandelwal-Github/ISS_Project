@@ -1,13 +1,18 @@
 package com.iss.controller;
 
 import com.iss.dto.candidate.CandidateDto;
+import com.iss.dto.interview.InterviewResponse;
+import com.iss.model.Accounts;
 import com.iss.model.enums.CandidateStatus;
+import com.iss.repository.AccountsRepository;
 import com.iss.service.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +24,8 @@ public class CandidateController {
 
     @Autowired
     private CandidateService candidateService;
+    @Autowired
+    private  AccountsRepository accountsRepository;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('HR')")
@@ -54,21 +61,57 @@ public class CandidateController {
         return ResponseEntity.ok(candidateService.getByPrimarySkill(skill));
     }
 
-    @PostMapping
-    @PreAuthorize("hasRole('HR')")
-    public ResponseEntity<CandidateDto.CandidateResponse> createCandidate(@RequestBody CandidateDto.CandidateRequest request) {
-        CandidateDto.CandidateResponse response = candidateService.createCandidate(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
+//    @PutMapping("/{id}")
+//    @PreAuthorize("hasAnyRole('HR')")
+//    public ResponseEntity<CandidateDto.CandidateResponse> updateCandidate(@PathVariable Long id, @RequestBody CandidateDto.CandidateRequest request) {
+//        CandidateDto.CandidateResponse response = candidateService.updateCandidate(id, request);
+//        if (response != null) {
+//            return ResponseEntity.ok(response);
+//        }
+//        return ResponseEntity.notFound().build();
+//    }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('HR')")
-    public ResponseEntity<CandidateDto.CandidateResponse> updateCandidate(@PathVariable Long id, @RequestBody CandidateDto.CandidateRequest request) {
-        CandidateDto.CandidateResponse response = candidateService.updateCandidate(id, request);
-        if (response != null) {
+    @PutMapping("/update")
+    @PreAuthorize("hasAnyRole('HR', 'CANDIDATE')")
+    public ResponseEntity<CandidateDto.CandidateResponse> updateCandidate(
+            @RequestParam(required = false) Long userId,
+            Authentication authentication,
+            @RequestBody CandidateDto.CandidateRequest request) {
+
+        CandidateDto.CandidateResponse response;
+
+        boolean isCandidate = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_CANDIDATE"));
+
+        System.out.println(authentication.getAuthorities());
+
+        if (!isCandidate) {
+            if (userId != null) {
+                response = candidateService.updateCandidate(userId, request);
+                if (response == null) {
+                    return ResponseEntity.notFound().build();
+                }
+                return ResponseEntity.ok(response);
+            }
+        }
+        else {
+
+            Jwt jwt = (Jwt) authentication.getPrincipal();
+            String email = jwt.getClaim("email");
+
+            Accounts account = accountsRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            response = candidateService.updateCandidate(account.getId(), request);
+
+            if (response == null) {
+                return ResponseEntity.notFound().build();
+            }
+
             return ResponseEntity.ok(response);
         }
-        return ResponseEntity.notFound().build();
+
+        return ResponseEntity.badRequest().build();
     }
 
     @DeleteMapping("/{id}")
