@@ -26,7 +26,7 @@ spring:
     listener:
       missing-topics-fatal: false
   profiles:
-    active: h2
+    active: postgres
   jpa:
     hibernate:
       ddl-auto: update

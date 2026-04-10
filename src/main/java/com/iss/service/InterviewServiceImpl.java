@@ -40,6 +40,12 @@ public class InterviewServiceImpl implements InterviewService {
     @Override
     public InterviewResponse scheduleInterview(InterviewRequest request) {
         validateInterviewRequest(request);
+
+        if (request.getPanelId() != null && interviewRepository.existsByPanelUserIdAndInterviewDateAndTimeSlot(
+                request.getPanelId(), request.getInterviewDate(), request.getTimeSlot())) {
+            throw new IllegalArgumentException("The selected panel member already has an interview scheduled at this time.");
+        }
+
         Candidate candidate = candidateRepository.findById(request.getCandidateId())
                 .orElseThrow(() -> new ResourceNotFoundException("Candidate not found with id: " + request.getCandidateId()));
 
@@ -107,7 +113,13 @@ public class InterviewServiceImpl implements InterviewService {
             interview.setPanelUser(panelUser);
         }
 
-        // 4. Save the modified "Original"
+        // 4. Validate panel availability
+        if (interview.getPanelUser() != null && interviewRepository.existsByPanelUserIdAndInterviewDateAndTimeSlotAndIdNot(
+                interview.getPanelUser().getId(), interview.getInterviewDate(), interview.getTimeSlot(), interview.getId())) {
+            throw new IllegalArgumentException("The selected panel member already has an interview scheduled at this time.");
+        }
+
+        // 5. Save the modified "Original"
         Interview savedInterview = interviewRepository.save(interview);
         return mapToResponse(savedInterview);
     }

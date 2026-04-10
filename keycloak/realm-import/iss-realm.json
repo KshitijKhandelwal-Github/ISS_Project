@@ -20,6 +20,7 @@
       "implicitFlowEnabled": false,
       "serviceAccountsEnabled": false,
       "redirectUris": [
+        "http://localhost:8080/*",
         "http://localhost:8080/login/oauth2/code/keycloak",
         "https://oauth.pstmn.io/v1/callback"
       ],

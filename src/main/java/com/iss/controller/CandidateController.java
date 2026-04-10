@@ -61,16 +61,6 @@ public class CandidateController {
         return ResponseEntity.ok(candidateService.getByPrimarySkill(skill));
     }
 
-//    @PutMapping("/{id}")
-//    @PreAuthorize("hasAnyRole('HR')")
-//    public ResponseEntity<CandidateDto.CandidateResponse> updateCandidate(@PathVariable Long id, @RequestBody CandidateDto.CandidateRequest request) {
-//        CandidateDto.CandidateResponse response = candidateService.updateCandidate(id, request);
-//        if (response != null) {
-//            return ResponseEntity.ok(response);
-//        }
-//        return ResponseEntity.notFound().build();
-//    }
-
     @PutMapping("/update")
     @PreAuthorize("hasAnyRole('HR', 'CANDIDATE')")
     public ResponseEntity<CandidateDto.CandidateResponse> updateCandidate(

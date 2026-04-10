@@ -192,6 +192,30 @@ class InterviewServiceTest {
     }
 
     @Test
+    void scheduleInterview_WhenPanelConflict_ShouldThrowException() {
+        when(interviewRepository.existsByPanelUserIdAndInterviewDateAndTimeSlot(
+                anyLong(), any(LocalDate.class), any(LocalTime.class))).thenReturn(true);
+
+        assertThatThrownBy(() -> interviewService.scheduleInterview(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("The selected panel member already has an interview scheduled at this time.");
+    }
+
+    @Test
+    void update_WhenPanelConflict_ShouldThrowException() {
+        when(interviewRepository.findById(1L)).thenReturn(Optional.of(interview));
+        when(candidateRepository.findById(2L)).thenReturn(Optional.of(candidate));
+        when(accountsRepository.findById(1L)).thenReturn(Optional.of(hrAccount));
+        when(accountsRepository.findById(3L)).thenReturn(Optional.of(panelAccount));
+        when(interviewRepository.existsByPanelUserIdAndInterviewDateAndTimeSlotAndIdNot(
+                anyLong(), any(LocalDate.class), any(LocalTime.class), anyLong())).thenReturn(true);
+
+        assertThatThrownBy(() -> interviewService.updateInterview(1L, request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("The selected panel member already has an interview scheduled at this time.");
+    }
+
+    @Test
     void delete_ShouldDeleteInterview() {
         when(interviewRepository.findById(1L)).thenReturn(Optional.of(interview));
 
